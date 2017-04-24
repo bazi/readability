@@ -1966,11 +1966,23 @@ Readability.prototype = {
     // </div>
     var brNodes = this._getAllNodesWithTag(this._doc, ["div > br"]);
     if (brNodes.length) {
-      var set = new Set();
-      [].forEach.call(brNodes, function(node) {
-        set.add(node.parentNode);
+      var set = {};
+      [].forEach.call(brNodes, function (element) {
+        var node = element.parentNode;
+        var uniqueKey = node.tagName;
+        if (node.id) {
+          uniqueKey = node.tagName + '' + node.id;
+        } else if (node.className) {
+          uniqueKey = node.tagName + '' + node.className;
+        }
+
+        set[uniqueKey] = node;
       });
-      nodes = [].concat.apply(Array.from(set), nodes);
+
+      var arr = Object.keys(set);
+      nodes = [].concat.apply(arr.map(function(key) {
+       return set[key];
+      }), nodes);
     }
 
     // FIXME we should have a fallback for helperIsVisible, but this is
